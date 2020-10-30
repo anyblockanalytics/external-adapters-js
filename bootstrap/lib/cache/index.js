@@ -47,12 +47,16 @@ const envOptionsSafe = () => {
   return opts
 }
 
+// TODO: Revisit this after we stop to reinitialize middleware on every request
+// We store the local LRU cache instance, so it's not reinitialized on every request
+let localLRUCache
+
 const getCacheImpl = (options) => {
   switch (options.type) {
     case 'redis':
       return redis.RedisCache.build(options.redis)
     default:
-      return new local.LocalLRUCache(options.local)
+      return localLRUCache || (localLRUCache = new local.LocalLRUCache(options.local))
   }
 }
 
